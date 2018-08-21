@@ -1,6 +1,5 @@
 const Joi = require('joi');
 const express = require('express');
-
 const app = express();
 
 app.use(express.json());
@@ -25,16 +24,17 @@ app.get('/sandhya/skills', (request, response) => {
 });
 
 app.post('/sandhya/skills', (request, response) => {
-    if (!request.body.name) {
-        // 400 Bad Request
-        response.status(400).send('Name is required');
-        return;
-    }
-    else if (request.body.name.length < 3) {
-        response.status(400).send('Name should be longer than 3 characters.');
-        return;
-    }
+    const schema = {
+        name: Joi.string().min(3).required()
+    };
 
+    const result = Joi.validate(request.body, schema);
+
+    if (result.error) {
+        // 400 Bad Request
+        response.status(400).send(result.error.details[0].message);
+        return;
+    }
 
     const skill = {
         id: skills.length + 1,
